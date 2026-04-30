@@ -1,0 +1,43 @@
+import { adminMiddleware } from "../../middlewares/auth.middleware.js";
+import {
+  getProduct,
+  saveProduct,
+  updateProductStatus,productByCategory,deleteProduct,
+  productDetail
+} from "./product.controller.js";
+
+export default async function productRoutes(app) {
+  console.log("✅ PRODUCT ROUTES REGISTERED");
+
+  app.post(
+    "/product/save",
+    { preHandler: adminMiddleware },
+    saveProduct
+  );
+
+  app.post(
+    "/product",
+    { preHandler: adminMiddleware },
+    getProduct
+  );
+
+  app.post(
+    "/product/status",
+    { preHandler: adminMiddleware },
+    updateProductStatus
+  );
+  app.post(
+    "/product/product_by_category",
+    productByCategory
+  );
+  app.post(
+    "/product/product_detail",
+    productDetail
+  );
+  app.post(
+    "/product/delete_product",
+    { preHandler: adminMiddleware },
+    deleteProduct
+  );
+  
+}

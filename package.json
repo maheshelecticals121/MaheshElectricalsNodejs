@@ -1,0 +1,32 @@
+{
+  "name": "backend_maheshelectricals",
+  "version": "1.0.0",
+  "description": "maheshelectricals Backend (Fastify + MongoDB)",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.2.0",
+    "@fastify/multipart": "^9.3.0",
+    "axios": "^1.13.2",
+    "bcrypt": "^6.0.0",
+    "cloudinary": "^2.8.0",
+    "dotenv": "^17.2.3",
+    "fastify": "^5.6.2",
+    "ioredis": "^5.8.2",
+    "jsonwebtoken": "^9.0.3",
+    "mongodb": "^6.5.0",
+    "mongoose": "^9.0.2",
+    "razorpay": "^2.9.6",
+    "resend": "^6.6.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}
