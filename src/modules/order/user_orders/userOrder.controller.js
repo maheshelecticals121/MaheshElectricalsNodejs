@@ -1,8 +1,4 @@
 import * as orderService from "./userOrder.service.js";
-import {
-  createRazorpayOrderService,
-  verifyRazorpayPaymentService,
-} from "./razorpay.service.js";
 
 /* =====================================
    CREATE ORDER (COD)
@@ -29,67 +25,7 @@ export async function createCODOrder(req, reply) {
   }
 }
 
-/* =====================================
-   CREATE RAZORPAY ORDER
-===================================== */
-export async function createOnlinePayment(req, reply) {
-  const { totalAmount } = req.body;
 
-  if (!totalAmount || totalAmount <= 0) {
-    return reply.code(400).send({
-      success: false,
-      message: "Valid totalAmount required",
-    });
-  }
-
-  const razorpayOrder = await createRazorpayOrderService({
-    amount: totalAmount,
-  });
-
-  return reply.send({
-    success: true,
-    razorpayOrder,
-    key: process.env.RAZORPAY_KEY_ID,
-  });
-}
-
-/* =====================================
-   VERIFY PAYMENT + CREATE ORDER
-===================================== */
-export async function verifyOnlinePayment(req, reply) {
-  try {
-    const {
-      razorpay_order_id,
-      razorpay_payment_id,
-      razorpay_signature,
-      orderPayload,
-    } = req.body;
-
-    verifyRazorpayPaymentService({
-      razorpay_order_id,
-      razorpay_payment_id,
-      razorpay_signature,
-    });
-
-    const order = await orderService.createOrderService({
-      ...orderPayload,
-      user_id: req.user.id,
-      userEmail: req.user.email,
-      paymentMethod: "ONLINE",
-      paymentStatus: "paid",
-    });
-
-    return reply.send({
-      success: true,
-      order_id: order.order_id,
-    });
-  } catch (err) {
-    return reply.code(400).send({
-      success: false,
-      message: err.message,
-    });
-  }
-}
 
 
 /* =====================================
