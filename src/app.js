@@ -11,14 +11,12 @@ import multipart from "@fastify/multipart";
 
 // ADMIN CORE
 import adminRoutes from "./modules/admin/admin.route.js";
-import analyticsRoutes from "./modules/admin/analytics/analytics.route.js";
 
 // ADMIN FEATURES
 import adminNotificationRoutes from "./modules/admin/notification/adminNotification.route.js";
 
 
 // ADMIN DATA
-import collectionRoutes from "./modules/collection/collection.route.js";
 import productRoutes from "./modules/product/product.route.js";
 import contactRoutes from "./modules/contactus/contact.route.js"
 
@@ -104,13 +102,12 @@ export default async function buildApp() {
   await app.register(adminRoutes, { prefix: ADMIN_PREFIX });
 
   await app.register(adminNotificationRoutes, { prefix: ADMIN_PREFIX });
-  await app.register(analyticsRoutes, { prefix: ADMIN_PREFIX });
+  await app.register(productRoutes, { prefix: ADMIN_PREFIX });
 
 
   /* ===============================
      📦 COLLECTION & PRODUCT (ADMIN)
   =============================== */
-  await app.register(collectionRoutes, { prefix: ADMIN_PREFIX });
   await app.register(contactRoutes, { prefix: ADMIN_PREFIX });
 
   /* ===============================

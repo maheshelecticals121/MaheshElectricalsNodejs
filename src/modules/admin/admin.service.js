@@ -19,10 +19,6 @@ const ALLOWED_ADMINS = [
     email: "maheshelectricalscustomer@gmail.com",
     role: "admin",
   },
-  {
-    email: "rangrasiya@gmail.com",
-    role: "staff",
-  },
 ];
 
 const TOKEN_EXPIRY = "7d";
@@ -53,12 +49,9 @@ export async function loginAdmin({ email, password }) {
     let defaultPassword;
 
     if (email === "maheshelectricalscustomer@gmail.com") {
-      defaultPassword = "maheshelectricalscustomer@2026";
+      defaultPassword = "mahesh@23451";
     }
 
-    if (email === "rangrasiya@gmail.com") {
-      defaultPassword = "admin@123";
-    }
 
     const hashedPassword = await bcrypt.hash(defaultPassword, 10);
 

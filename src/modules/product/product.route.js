@@ -2,7 +2,7 @@ import { adminMiddleware } from "../../middlewares/auth.middleware.js";
 import {
   getProduct,
   saveProduct,
-  updateProductStatus,productByCategory,deleteProduct,
+productByCategory,deleteProduct,
   productDetail
 } from "./product.controller.js";
 
@@ -19,12 +19,6 @@ export default async function productRoutes(app) {
     "/product",
     { preHandler: adminMiddleware },
     getProduct
-  );
-
-  app.post(
-    "/product/status",
-    { preHandler: adminMiddleware },
-    updateProductStatus
   );
   app.post(
     "/product/product_by_category",
