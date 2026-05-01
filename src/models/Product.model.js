@@ -32,7 +32,11 @@ const ProductSchema = new mongoose.Schema(
       enum: ["electrical", "furniture"],
       required: true,
     },
-
+    subCategory: {
+      type: String,
+      default: "",
+      trim: true,
+    },
     tags: [String],
 
     // Images

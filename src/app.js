@@ -19,9 +19,7 @@ import adminNotificationRoutes from "./modules/admin/notification/adminNotificat
 // ADMIN DATA
 import productRoutes from "./modules/product/product.route.js";
 import contactRoutes from "./modules/contactus/contact.route.js"
-
-
-import orderRoutes from "./modules/order/user_orders/userOrder.route.js";
+import orderRoutes from "./modules/order/order.route.js"
 
 
 export default async function buildApp() {
@@ -32,7 +30,7 @@ export default async function buildApp() {
     logger: true,
     trustProxy: true,
     disableRequestLogging: true,
-    bodyLimit: 6 * 1024 * 1024, // 6MB
+   bodyLimit: 20 * 1024 * 1024, // 20MB
   });
 
   /* ===============================
@@ -57,8 +55,8 @@ export default async function buildApp() {
   await app.register(multipart, {
     attachFieldsToBody: false,
     limits: {
-      fileSize: 5 * 1024 * 1024, // 5MB
-      files: 20,
+      fileSize: 10 * 1024 * 1024, // 10MB per file
+      files: 10, // max images
     },
   });
 
@@ -103,6 +101,7 @@ export default async function buildApp() {
 
   await app.register(adminNotificationRoutes, { prefix: ADMIN_PREFIX });
   await app.register(productRoutes, { prefix: ADMIN_PREFIX });
+  await app.register(orderRoutes, { prefix: ADMIN_PREFIX });
 
 
   /* ===============================
@@ -116,7 +115,6 @@ export default async function buildApp() {
   =============================== */
   const USER_PREFIX = "/api/user_link";
 
-  await app.register(orderRoutes, { prefix: USER_PREFIX });
 
   /* ===============================
      🧪 HEALTH CHECK

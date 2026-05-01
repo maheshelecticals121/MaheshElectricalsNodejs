@@ -3,6 +3,17 @@ import { uploadImageBuffer } from "../../utils/uploadToCloudinary.js";
 import redis from "../../config/redis.js";
 
 /* ===============================
+   HELPER: SAFE JSON PARSE
+================================ */
+function safeJSONParse(value, fallback = []) {
+  try {
+    return value ? JSON.parse(value) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+/* ===============================
    HELPER: SLUG
 ================================ */
 async function generateUniqueSlug(baseSlug, productId = null) {
@@ -41,6 +52,10 @@ export async function saveProduct(req, reply) {
       }
     }
 
+    /* 🔥 VALIDATION */
+    if (!fields.title) throw new Error("Title required");
+    if (!fields.slug) throw new Error("Slug required");
+
     /* ================= CREATE ================= */
     if (!fields.product_id) {
       const adminId = req.user?.id;
@@ -48,28 +63,38 @@ export async function saveProduct(req, reply) {
 
       const finalSlug = await generateUniqueSlug(fields.slug);
 
-      const uploadedImages = await Promise.all(
-        imageBuffers.map((b) =>
-          uploadImageBuffer(b, "maheshelectricals/products")
-        )
-      );
+      /* 🔥 IMAGE UPLOAD */
+      const uploadedImages = [];
+      for (const buffer of imageBuffers) {
+        const img = await uploadImageBuffer(
+          buffer,
+          "maheshelectricals/products",
+          { quality: "auto", format: "webp" }
+        );
+        uploadedImages.push(img);
+      }
 
       const product = await Product.create({
         title: fields.title,
         slug: finalSlug,
-        description: fields.description,
+        description: fields.description || "",
 
         pageTitle: fields.pageTitle || fields.title,
         metaDescription: fields.metaDescription || "",
 
         price: Number(fields.price || 0),
-        compareAtPrice: Number(fields.compareAtPrice || 0),
 
-        category: fields.category,
-        tags: JSON.parse(fields.tags || "[]"),
+        category: fields.category || "electrical",
+
+        // 🔥 NEW
+        subCategory: fields.subCategory || "",
+
+        tags: safeJSONParse(fields.tags),
 
         mainImages: uploadedImages,
-        status: "Active",
+
+        status: fields.status || "Active",
+
         createdBy: adminId,
       });
 
@@ -103,22 +128,29 @@ export async function saveProduct(req, reply) {
     if (fields.price !== undefined)
       product.price = Number(fields.price);
 
-    if (fields.compareAtPrice !== undefined)
-      product.compareAtPrice = Number(fields.compareAtPrice);
-
-    if (fields.tags !== undefined)
-      product.tags = JSON.parse(fields.tags);
-
     if (fields.category !== undefined)
       product.category = fields.category;
 
+    // 🔥 NEW
+    if (fields.subCategory !== undefined)
+      product.subCategory = fields.subCategory;
+
+    if (fields.tags !== undefined)
+      product.tags = safeJSONParse(fields.tags);
+
+    if (fields.status !== undefined)
+      product.status = fields.status;
+
+    /* 🔥 IMAGE UPDATE */
     if (imageBuffers.length) {
-      const uploaded = await Promise.all(
-        imageBuffers.map((b) =>
-          uploadImageBuffer(b, "maheshelectricals/products")
-        )
-      );
-      product.mainImages.push(...uploaded);
+      for (const buffer of imageBuffers) {
+        const img = await uploadImageBuffer(
+          buffer,
+          "maheshelectricals/products",
+          { quality: "auto", format: "webp" }
+        );
+        product.mainImages.push(img);
+      }
     }
 
     await product.save();
@@ -240,6 +272,36 @@ export async function deleteProduct(req, reply) {
     return reply.send({
       success: true,
       deleted: true,
+    });
+  } catch (err) {
+    return reply.code(400).send({
+      success: false,
+      message: err.message,
+    });
+  }
+}
+
+/* ===============================
+   TOGGLE PRODUCT STATUS
+================================ */
+export async function updateProductStatus(req, reply) {
+  try {
+    const { product_id } = req.body;
+
+    if (!product_id) throw new Error("product_id required");
+
+    const product = await Product.findOne({ product_id });
+    if (!product) throw new Error("Product not found");
+
+    product.status = product.status === "Active" ? "Draft" : "Active";
+
+    await product.save();
+    await redis.del("ALL_PRODUCTS");
+
+    return reply.send({
+      success: true,
+      product_id,
+      status: product.status,
     });
   } catch (err) {
     return reply.code(400).send({

@@ -4,6 +4,8 @@ import {
   saveProduct,
 productByCategory,deleteProduct,
   productDetail
+  ,
+  updateProductStatus
 } from "./product.controller.js";
 
 export default async function productRoutes(app) {
@@ -33,5 +35,9 @@ export default async function productRoutes(app) {
     { preHandler: adminMiddleware },
     deleteProduct
   );
-  
+  app.post(
+    "/product/status",
+    { preHandler: adminMiddleware },
+    updateProductStatus
+  );
 }
