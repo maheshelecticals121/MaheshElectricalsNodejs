@@ -11,23 +11,20 @@ import multipart from "@fastify/multipart";
 
 // ADMIN CORE
 import adminRoutes from "./modules/admin/admin.route.js";
-import adminUserRoute from "./modules/admin/admin-user/adminUser.route.js";
 import analyticsRoutes from "./modules/admin/analytics/analytics.route.js";
 
 // ADMIN FEATURES
 import adminNotificationRoutes from "./modules/admin/notification/adminNotification.route.js";
-import AdminOrdersRoutes from "./modules/order/admin_orders/adminOrder.route.js";
+
 
 // ADMIN DATA
 import collectionRoutes from "./modules/collection/collection.route.js";
 import productRoutes from "./modules/product/product.route.js";
 import contactRoutes from "./modules/contactus/contact.route.js"
 
-// USER
-import userRoutes from "./modules/user/user.route.js";
+
 import orderRoutes from "./modules/order/user_orders/userOrder.route.js";
-import abandonedCartRoutes from "./modules/order/abandoned_cart/abandonedCart.route.js"
-import podRoutes from "./modules/pod/pod.route.js"
+
 
 export default async function buildApp() {
   /* ===============================
@@ -105,18 +102,15 @@ export default async function buildApp() {
   const ADMIN_PREFIX = "/api/admin_link";
 
   await app.register(adminRoutes, { prefix: ADMIN_PREFIX });
-  await app.register(adminUserRoute, { prefix: ADMIN_PREFIX });
-  await app.register(AdminOrdersRoutes, { prefix: ADMIN_PREFIX });
+
   await app.register(adminNotificationRoutes, { prefix: ADMIN_PREFIX });
   await app.register(analyticsRoutes, { prefix: ADMIN_PREFIX });
-  await app.register(abandonedCartRoutes, { prefix: ADMIN_PREFIX });
-  await app.register(podRoutes, { prefix: ADMIN_PREFIX });
+
 
   /* ===============================
      📦 COLLECTION & PRODUCT (ADMIN)
   =============================== */
   await app.register(collectionRoutes, { prefix: ADMIN_PREFIX });
-  await app.register(productRoutes, { prefix: ADMIN_PREFIX });
   await app.register(contactRoutes, { prefix: ADMIN_PREFIX });
 
   /* ===============================
@@ -125,7 +119,6 @@ export default async function buildApp() {
   =============================== */
   const USER_PREFIX = "/api/user_link";
 
-  await app.register(userRoutes, { prefix: USER_PREFIX });
   await app.register(orderRoutes, { prefix: USER_PREFIX });
 
   /* ===============================
