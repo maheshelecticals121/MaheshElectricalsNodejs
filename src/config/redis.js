@@ -1,24 +1,29 @@
 import Redis from "ioredis";
 
-// 🔥 Toggle (env se control hoga)
 const isLocal = process.env.LOCAL === "true";
 
-// ✅ URLs
-const LOCAL_REDIS = "redis://127.0.0.1:6379";
-const PROD_REDIS = process.env.REDIS_URL;
+const redisUrl = isLocal
+  ? "redis://127.0.0.1:6379"
+  : process.env.REDIS_URL;
 
-// 👉 Final URL select
-const redisUrl = isLocal ? LOCAL_REDIS : PROD_REDIS;
+console.log("REDIS URL:", redisUrl?.replace(/:(.*?)@/, ":***@"));
 
-// 🔥 Redis instance
 const redis = new Redis(redisUrl, {
-  tls: !isLocal
-    ? { rejectUnauthorized: false } // production (Render)
-    : undefined,
+  connectTimeout: 10000,
+  maxRetriesPerRequest: 2,
+  enableReadyCheck: true,
+  retryStrategy(times) {
+    // 2s tak backoff, phir give up
+    return Math.min(times * 200, 2000);
+  },
+});
+
+redis.on("ready", () => {
+  console.log(`✅ Redis ready (${isLocal ? "LOCAL" : "PROD"})`);
 });
 
 redis.on("connect", () => {
-  console.log(`✅ Redis connected (${isLocal ? "LOCAL" : "PROD"})`);
+  console.log(`🔌 Redis socket connected`);
 });
 
 redis.on("error", (err) => {
