@@ -16,14 +16,15 @@ const clean = (val) => {
 };
 
 /* ===============================
-   CONSTANTS
+   CONSTANTS (SAFE FALLBACK)
 ================================ */
 const FROM_EMAIL = "onboarding@resend.dev";
 
-const ADMIN_EMAIL = clean(process.env.ADMIN_EMAIL);
+// ✅ ALWAYS SAFE (ENV + FALLBACK)
+const ADMIN_EMAIL = "maheshelecticals121@gmail.com";
 
 /* ===============================
-   COMMON MAIL SENDER (SAFE)
+   COMMON MAIL SENDER (FINAL FIX)
 ================================ */
 const sendMail = async ({ subject, html }) => {
   try {
@@ -31,10 +32,15 @@ const sendMail = async ({ subject, html }) => {
       throw new Error("RESEND_API_KEY missing");
     }
 
-    const fromEmail = clean(process.env.EMAIL_FROM) || FROM_EMAIL;
+    const fromEmail =
+      clean(process.env.EMAIL_FROM) || FROM_EMAIL;
 
-    // ✅ FORCE ADMIN ONLY (IMPORTANT FIX)
     const toEmail = ADMIN_EMAIL;
+
+    // ✅ VALIDATION (IMPORTANT)
+    if (!toEmail || !toEmail.includes("@")) {
+      throw new Error("Invalid ADMIN_EMAIL format");
+    }
 
     console.log("📤 Sending Mail:", {
       from: fromEmail,
@@ -43,7 +49,7 @@ const sendMail = async ({ subject, html }) => {
 
     const res = await resend.emails.send({
       from: fromEmail,
-      to: [toEmail],
+      to: [toEmail], // ✅ ALWAYS ADMIN ONLY
       subject,
       html,
     });
@@ -63,26 +69,12 @@ const sendMail = async ({ subject, html }) => {
 };
 
 /* ===============================
-   🔥 ADMIN ORDER EMAIL
+   🔥 ADMIN ORDER EMAIL (FINAL)
 ================================ */
 export const sendNewOrderAlertToAdmin = async ({ order }) => {
   return sendMail({
-    to: ADMIN_EMAIL,
     subject: `🔥 New Order - ${order.order_id}`,
     html: adminTemplate(order),
-  });
-};
-
-/* ===============================
-   OPTIONAL USER EMAIL
-================================ */
-export const sendOrderConfirmationToUser = async ({ order, email }) => {
-  if (!email) return;
-
-  return sendMail({
-    to: email,
-    subject: `Order Confirmed - ${order.order_id}`,
-    html: userTemplate(order),
   });
 };
 
@@ -137,17 +129,4 @@ const adminTemplate = (o) =>
     <hr/>
 
     <p>📞 Call customer & confirm order</p>
-  `);
-
-/* ===============================
-   USER TEMPLATE
-================================ */
-const userTemplate = (o) =>
-  base(`
-    <h2>✅ Order Confirmed</h2>
-
-    <p>Your order <b>#${o.order_id}</b> has been placed.</p>
-    <p><b>Total:</b> ₹${o.totalAmount}</p>
-
-    <p>We will contact you shortly 📞</p>
   `);
