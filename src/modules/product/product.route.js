@@ -5,6 +5,7 @@ import {
 productByCategory,deleteProduct,
   productDetail
   ,
+  relatedProducts,
   updateProductStatus
 } from "./product.controller.js";
 
@@ -19,7 +20,7 @@ export default async function productRoutes(app) {
 
   app.post(
     "/product",
-    { preHandler: adminMiddleware },
+    // { preHandler: adminMiddleware },
     getProduct
   );
   app.post(
@@ -39,5 +40,10 @@ export default async function productRoutes(app) {
     "/product/status",
     { preHandler: adminMiddleware },
     updateProductStatus
+  );
+  app.post(
+    "/product/relatedProducts",
+    // { preHandler: adminMiddleware },
+    relatedProducts
   );
 }

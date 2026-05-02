@@ -310,3 +310,34 @@ export async function updateProductStatus(req, reply) {
     });
   }
 }
+export async function relatedProducts(req, reply) {
+  try {
+    const { slug } = req.body;
+
+    const product = await Product.findOne({ slug });
+
+    if (!product) throw new Error("Product not found");
+
+    const related = await Product.find({
+      status: "Active",
+      slug: { $ne: slug }, // exclude current
+      $or: [
+        { subCategory: product.subCategory },
+        { category: product.category }
+      ]
+    })
+      .limit(4)
+      .lean();
+
+    return reply.send({
+      success: true,
+      products: related
+    });
+
+  } catch (err) {
+    return reply.code(400).send({
+      success: false,
+      message: err.message
+    });
+  }
+}
