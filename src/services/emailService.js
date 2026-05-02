@@ -20,19 +20,21 @@ const clean = (val) => {
 ================================ */
 const FROM_EMAIL = "onboarding@resend.dev";
 
-const ADMIN_EMAIL = clean(process.env.ADMIN_EMAIL) || "mandaltarun016@gmail.com";
+const ADMIN_EMAIL = clean(process.env.ADMIN_EMAIL);
 
 /* ===============================
    COMMON MAIL SENDER (SAFE)
 ================================ */
-const sendMail = async ({ to, subject, html }) => {
+const sendMail = async ({ subject, html }) => {
   try {
     if (!process.env.RESEND_API_KEY) {
       throw new Error("RESEND_API_KEY missing");
     }
 
     const fromEmail = clean(process.env.EMAIL_FROM) || FROM_EMAIL;
-    const toEmail = clean(to) || ADMIN_EMAIL;
+
+    // ✅ FORCE ADMIN ONLY (IMPORTANT FIX)
+    const toEmail = ADMIN_EMAIL;
 
     console.log("📤 Sending Mail:", {
       from: fromEmail,
