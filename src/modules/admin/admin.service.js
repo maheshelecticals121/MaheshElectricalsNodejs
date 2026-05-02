@@ -49,7 +49,7 @@ export async function loginAdmin({ email, password }) {
     let defaultPassword;
 
     if (email === "maheshelectricalscustomer@gmail.com") {
-      defaultPassword = "mahesh@23451";
+      defaultPassword = "Mahesh@2341";
     }
 
 
